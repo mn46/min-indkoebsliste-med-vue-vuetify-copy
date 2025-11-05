@@ -21,7 +21,6 @@ export default {
     return {
       shoppingList: [],
       loading: true,
-      myname: "Shoaib",
     };
   },
   async mounted() {
