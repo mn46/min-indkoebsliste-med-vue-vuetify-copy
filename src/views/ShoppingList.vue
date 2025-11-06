@@ -2,10 +2,11 @@
   <p v-if="loading">Henter data...</p>
 
   <v-card class="mx-auto" max-width="425">
-    <v-list lines="">
-      <v-list-item v-for="list in shoppingList" :key="list.id">
+    <v-list v-for="(list, index) in shoppingList" :key="index" lines="two">
+      <v-list-item>
         <template v-slot:subtitle>
-          {{ list.CategoryName }}
+          <p>{{ list.listName }}</p>
+          <p>{{ list.listCreatedDate }}</p>
         </template>
       </v-list-item>
     </v-list>
@@ -14,7 +15,7 @@
 
 <script>
 import productService from "@/services/productService";
-
+import { formatDateDMY } from "@/utility/dateFormatter";
 export default {
   components: {},
   data() {
@@ -23,10 +24,18 @@ export default {
       loading: true,
     };
   },
+  computed() {},
   async mounted() {
     try {
-      this.shoppingList = await productService.getShoppingList();
-      console.log("Received data from firebase:", this.shoppingList);
+      const receivedShoppingListFromDatabase = await productService.getShoppingList();
+      this.shoppingList = receivedShoppingListFromDatabase.map((list) => {
+        return {
+          ...list,
+          listName: list.CategoryName,
+          listCreatedDate: list.CreatedDate ? formatDateDMY(list.CreatedDate) : "No date available",
+        };
+      });
+      console.log("Received data from Firebase Database:", this.shoppingList);
     } catch (err) {
       console.error("Error fetching shopping list:", err);
     } finally {

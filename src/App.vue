@@ -1,19 +1,10 @@
 <template>
-  <v-card height="75">
-    <v-toolbar extended>
-      <v-toolbar-title text="Dine Indkøbslister"></v-toolbar-title>
-
-      <template v-slot:append>
-        <v-btn icon="mdi-magnify" @click="handleClick"></v-btn>
-
-        <v-btn icon="mdi-dots-vertical"></v-btn>
-      </template>
-    </v-toolbar>
-  </v-card>
+  <the-header></the-header>
   <section>
     <h4>Seneste 30 dage</h4>
     <ShoppingList />
   </section>
+  <the-footer></the-footer>
 </template>
 
 <script>
@@ -22,15 +13,9 @@ export default {
   components: {
     ShoppingList,
   },
-  methods: {
-    handleClick() {
-      console.log("clicked");
-    },
-  },
+
   data() {
     return {};
   },
 };
 </script>
-
-<style scoped></style>
