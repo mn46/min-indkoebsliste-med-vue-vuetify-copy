@@ -6,10 +6,16 @@
   <v-card class="mx-auto" max-width="425">
     <v-list v-for="(list, index) in shoppingList" :key="index" lines="two">
       <v-list-item>
-        <template v-slot:subtitle>
-          <p>{{ list.listName }}</p>
-          <p>{{ list.listCreatedDate }}</p>
-        </template>
+        <!-- <template v-slot:subtitle> -->
+        <p>{{ list.listName }}</p>
+        <p>{{ list.listCreatedDate }}</p>
+        <!-- <total-carbon productsWithThisId="list.Products" /> -->
+
+        <p>
+          CO2 (Kg):
+          {{ list.Products ? list.Products[0].co2_per_kg : "Not available" }}
+        </p>
+        <!-- </template> -->
       </v-list-item>
     </v-list>
   </v-card>
@@ -19,9 +25,11 @@
 import productService from "@/services/productService";
 import { formatDateDMY } from "@/utility/dateFormatter";
 import TheLoader from "@/components/TheLoader.vue";
+import TotalCarbon from "@/components/TotalCarbon.vue";
 export default {
   components: {
     TheLoader,
+    TotalCarbon,
   },
   data() {
     return {
