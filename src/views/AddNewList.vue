@@ -5,10 +5,17 @@
       <v-text-field placeholder="Skriv navn" v-model="listName" />
     </v-row>
 
-    <!-- <v-row v-for="product in shoppingList.Products" v-bind:key="product.id">
-      <v-checkbox :label="product.title"></v-checkbox>
-      <p>{{ product.co2_per_kg }} kg CO₂</p>
-    </v-row> -->
+    <v-list>
+      <v-list-item v-for="product in shoppingListProducts" v-bind:key="product">
+        <v-list-item-title>{{
+          productsList.find((prod) => prod.value === product).title
+        }}</v-list-item-title>
+        <v-list-item-subtitle
+          >{{ productsList.find((prod) => prod.value === product).co2_per_kg }} kg
+          CO₂</v-list-item-subtitle
+        >
+      </v-list-item>
+    </v-list>
 
     <v-combobox
       :items="productsList"
@@ -85,8 +92,8 @@ export default {
 #list-form {
   background-color: white;
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   top: 0;
   left: 0;
 }
