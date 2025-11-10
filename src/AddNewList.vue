@@ -1,11 +1,10 @@
 <template>
   <v-form class="position-absolute w-100 h-100">
     <v-text-field placeholder="Skriv navn" v-model="listName" @blur="handleSaveList" />
-    <v-checkbox
-      v-for="product in shoppingList.Products"
-      v-bind:key="product"
-      :label="product.title"
-    ></v-checkbox>
+    <v-row v-for="product in shoppingList.Products" v-bind:key="product.id">
+      <v-checkbox :label="product.title"></v-checkbox>
+      <p>{{ product.co2_per_kg }} kg CO₂</p>
+    </v-row>
     <v-combobox
       :items="productsList"
       item-value="value"
@@ -17,7 +16,7 @@
       <template v-slot:item="{ props, item }">
         <v-list-item v-bind="props" title="">
           <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
-          <v-list-item-subtitle>{{ item.raw.co2_per_kg }} CO₂ per kg</v-list-item-subtitle>
+          <v-list-item-subtitle>{{ item.raw.co2_per_kg }} kg CO₂</v-list-item-subtitle>
         </v-list-item>
       </template>
     </v-combobox>
