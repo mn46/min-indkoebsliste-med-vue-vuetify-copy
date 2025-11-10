@@ -1,6 +1,11 @@
 <template>
   <v-form class="position-absolute w-100 h-100">
     <v-text-field placeholder="Skriv navn" v-model="listName" @blur="handleSaveList" />
+    <v-checkbox
+      v-for="product in shoppingList.Products"
+      v-bind:key="product"
+      :label="product.title"
+    ></v-checkbox>
     <v-combobox
       :items="productsList"
       item-value="value"
@@ -26,7 +31,11 @@ export default {
   data() {
     return {
       productsList: [],
-      shoppingList: {},
+      shoppingList: {
+        CategoryName: "",
+        CreatedDate: null,
+        Products: [],
+      },
       selectedItem: null,
       unsubscribe: null,
       listId: null,
