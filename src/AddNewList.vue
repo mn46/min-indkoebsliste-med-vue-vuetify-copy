@@ -1,7 +1,13 @@
 <template>
   <v-form class="position-absolute w-100 h-100">
-    <v-text-field placeholder="Skriv navn" />
-    <v-combobox :items="productsList" item-value="value" label="Vælg produkt">
+    <v-text-field placeholder="Skriv navn" v-model="listName" @blur="handleSaveList" />
+    <v-combobox
+      :items="productsList"
+      item-value="value"
+      label="Vælg produkt"
+      v-model="selectedItem"
+      @update:model-value="handleUpdateList"
+    >
       <!-- Custom slot for how each item appears in the dropdown -->
       <template v-slot:item="{ props, item }">
         <v-list-item v-bind="props" title="">
@@ -20,7 +26,33 @@ export default {
   data() {
     return {
       productsList: [],
+      shoppingList: {},
+      selectedItem: null,
+      unsubscribe: null,
+      listId: null,
+      listName: "",
     };
+  },
+  methods: {
+    setShoppingListData(data) {
+      this.shoppingList = data;
+    },
+    async listenToList(id) {
+      if (this.unsubscribe) this.unsubscribe(); // clear previous listener if any
+
+      this.unsubscribe = await productService.listenToShoppingList(id, this.setShoppingListData);
+    },
+    async handleSaveList() {
+      const snapshotId = await productService.createShoppingList(this.listName);
+
+      this.listId = snapshotId;
+
+      this.listenToList(snapshotId);
+    },
+    handleUpdateList(product) {
+      if (!this.listId || !product) return;
+      productService.addProductToList(this.listId, product);
+    },
   },
   async mounted() {
     try {
@@ -30,9 +62,9 @@ export default {
           value: list.prodId,
           title: list.prodName,
           co2_per_kg: list.co2_per_kg,
+          prodAlternatives: list.prodAlternatives || [],
         };
       });
-      console.log("products:", this.productsList);
     } catch (err) {
       console.error("Error fetching products list", err);
     }
