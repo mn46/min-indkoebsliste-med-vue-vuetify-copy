@@ -5,7 +5,7 @@
 
   <v-card class="mx-auto" max-width="425">
     <v-list v-for="(list, index) in shoppingList" :key="index" lines="two">
-      <v-list-item>
+      <v-list-item @click="handleClick">
         <p>{{ list.listName }}</p>
         <p>{{ list.listCreatedDate }}</p>
 
@@ -55,6 +55,9 @@ export default {
       } else {
         return "red";
       }
+    },
+    handleClick() {
+      console.log("clicked on each list");
     },
   },
   computed: {
