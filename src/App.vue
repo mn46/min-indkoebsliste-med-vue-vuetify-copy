@@ -5,7 +5,6 @@
       <router-view />
     </v-main> -->
     <section>
-      <h4>Seneste 30 dage</h4>
       <ShoppingList />
       <PlusButton />
     </section>
