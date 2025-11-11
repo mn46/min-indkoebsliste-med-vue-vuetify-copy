@@ -24,7 +24,6 @@
       v-model="selectedItem"
       @update:model-value="setShoppingListData"
     >
-      <!-- Custom slot for how each item appears in the dropdown -->
       <template v-slot:item="{ props, item }">
         <v-list-item v-bind="props" title="">
           <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
@@ -46,17 +45,16 @@ export default {
       productsList: [],
       shoppingListProducts: [],
       selectedItem: null,
-      unsubscribe: null,
       listName: "",
     };
   },
   methods: {
     handleClickBackBtn() {
+      this.handleSaveList();
       this.$emit("toggle-open");
     },
     setShoppingListData(data) {
       this.shoppingListProducts.push(data.value);
-      console.log("this.shoppingListProducts", this.shoppingListProducts);
     },
     async handleSaveList() {
       if (!this.listName || this.shoppingListProducts.length === 0) return;
