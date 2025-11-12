@@ -8,29 +8,7 @@
 
     <v-list v-if="recent30DaysList.length > 0" class="pb-0">
       <div v-for="(list, index) in recent30DaysList" :key="`recent-${index}`">
-        <v-list-item class="rounded elevation-1" @click="handleClick">
-          <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
-          <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
-
-          <template v-slot:append>
-            <div class="d-flex flex-column align-end">
-              <div class="d-flex align-center">
-                <v-icon
-                  :color="getCo2LevelColor(list.totalCO2)"
-                  icon="mdi-circle-medium"
-                  size="16"
-                  class="mr-1"
-                ></v-icon>
-                <span
-                  class="text-body-2 font-weight-medium"
-                  :class="`text-${getCo2LevelColor(list.totalCO2)}`"
-                  >{{ getCo2LevelText(list.totalCO2) }}</span
-                >
-              </div>
-              <span class="text-caption">CO<sub>2</sub>: {{ list.totalCO2.toFixed(2) }} kg</span>
-            </div>
-          </template>
-        </v-list-item>
+        <list-item :listData="list" />
         <v-divider></v-divider>
       </div>
     </v-list>
@@ -42,29 +20,7 @@
 
     <v-list v-if="previousMonthList.length > 0" class="pb-0">
       <div v-for="(list, index) in previousMonthList" :key="`prev-month-${index}`">
-        <v-list-item class="rounded elevation-1" @click="handleClick">
-          <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
-          <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
-
-          <template v-slot:append>
-            <div class="d-flex flex-column align-end">
-              <div class="d-flex align-center">
-                <v-icon
-                  :color="getCo2LevelColor(list.totalCO2)"
-                  icon="mdi-circle-medium"
-                  size="16"
-                  class="mr-1"
-                ></v-icon>
-                <span
-                  class="text-body-2 font-weight-medium"
-                  :class="`text-${getCo2LevelColor(list.totalCO2)}`"
-                  >{{ getCo2LevelText(list.totalCO2) }}</span
-                >
-              </div>
-              <span class="text-caption">CO<sub>2</sub>: {{ list.totalCO2.toFixed(2) }} kg</span>
-            </div>
-          </template>
-        </v-list-item>
+        <list-item :listData="list" />
         <v-divider></v-divider>
       </div>
     </v-list>
@@ -75,8 +31,11 @@
 </template>
 
 <script>
+import ListItem from "@/components/ListItem.vue";
+import DialogBox from "@/components/UI/DialogBox.vue";
 import productService from "@/services/productService";
 import { formatDateDMY } from "@/utility/dateFormatter";
+import parseDDMMYYYY from "@/utility/dateParser";
 import TheLoader from "@/components/TheLoader.vue";
 import { db } from "@/utility/firebaseConfig";
 import { collection, getDocs, where, query, documentId } from "firebase/firestore";
@@ -84,62 +43,29 @@ const productsCollection = collection(db, "Products");
 
 export default {
   components: {
+    ListItem,
+    DialogBox,
     TheLoader,
   },
   data() {
     return {
       shoppingList: [],
       loading: true,
+      isDeletedPressed: false,
+      isUpdatedPressed: false,
+    };
+  },
+  setup() {
+    return {
+      parseDDMMYYYY,
     };
   },
   methods: {
-    getCo2LevelColor(co2Value) {
-      if (co2Value < 4.5) {
-        // < 15
-        return "green";
-      } else if (co2Value > 4.4 && co2Value < 8) {
-        //15-40
-        return "yellow-darken-3";
-      } else {
-        // >40
-        return "red";
-      }
-    },
-    getCo2LevelText(co2Value) {
-      if (co2Value < 4.5) {
-        // <15
-        return "Lav";
-      } else if (co2Value > 4.4 && co2Value < 8) {
-        // 15-40
-        return "Medium";
-      } else {
-        // >40
-        return "Høj";
-      }
-    },
-    parseDDMMYYYY(dateString) {
-      // FIX: Check if dateString is a string, not null/undefined, and not the default text
-      if (typeof dateString !== "string" || !dateString || dateString === "No date available") {
-        return null;
-      }
-
-      const parts = dateString.split("/");
-
-      // Additional safety check for format
-      if (parts.length !== 3) {
-        console.warn("Invalid date format detected for filtering:", dateString);
-        return null;
-      }
-
-      // parts[2]=YYYY, parts[1]-1=MM, parts[0]=DD (Month is 0-indexed)
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10);
-
-      return new Date(year, month, day);
-    },
     handleClick() {
       console.log("clicked on each list");
+    },
+    openDialogComponent() {
+      this.isDeletedPressed = true;
     },
   },
   computed: {
