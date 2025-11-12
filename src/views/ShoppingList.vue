@@ -9,6 +9,34 @@
     <v-list v-if="recent30DaysList.length > 0" class="pb-0">
       <div v-for="(list, index) in recent30DaysList" :key="`recent-${index}`">
         <list-item :listData="list" />
+
+        <v-list-item
+          class="rounded elevation-1"
+          :to="{ name: 'ListDetails', params: { id: list.id } }"
+          link
+        >
+          <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
+          <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
+
+          <template v-slot:append>
+            <div class="d-flex flex-column align-end">
+              <div class="d-flex align-center">
+                <v-icon
+                  :color="getCo2LevelColor(list.totalCO2)"
+                  icon="mdi-circle-medium"
+                  size="16"
+                  class="mr-1"
+                ></v-icon>
+                <span
+                  class="text-body-2 font-weight-medium"
+                  :class="`text-${getCo2LevelColor(list.totalCO2)}`"
+                  >{{ getCo2LevelText(list.totalCO2) }}</span
+                >
+              </div>
+              <span class="text-caption">CO<sub>2</sub>: {{ list.totalCO2.toFixed(2) }} kg</span>
+            </div>
+          </template>
+        </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
@@ -21,6 +49,34 @@
     <v-list v-if="previousMonthList.length > 0" class="pb-0">
       <div v-for="(list, index) in previousMonthList" :key="`prev-month-${index}`">
         <list-item :listData="list" />
+
+        <v-list-item
+          class="rounded elevation-1"
+          :to="{ name: 'ListDetails', params: { id: list.id } }"
+          link
+        >
+          <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
+          <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
+
+          <template v-slot:append>
+            <div class="d-flex flex-column align-end">
+              <div class="d-flex align-center">
+                <v-icon
+                  :color="getCo2LevelColor(list.totalCO2)"
+                  icon="mdi-circle-medium"
+                  size="16"
+                  class="mr-1"
+                ></v-icon>
+                <span
+                  class="text-body-2 font-weight-medium"
+                  :class="`text-${getCo2LevelColor(list.totalCO2)}`"
+                  >{{ getCo2LevelText(list.totalCO2) }}</span
+                >
+              </div>
+              <span class="text-caption">CO<sub>2</sub>: {{ list.totalCO2.toFixed(2) }} kg</span>
+            </div>
+          </template>
+        </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
@@ -130,6 +186,7 @@ export default {
       if (productsRefs.length === 0) {
         this.shoppingList = receivedShoppingListFromDatabase.map((list) => {
           return {
+            id: list.id,
             listName: list.CategoryName,
             listCreatedDate: list.CreatedDate
               ? formatDateDMY(list.CreatedDate)
@@ -156,6 +213,7 @@ export default {
         }, 0);
         // AI end
         return {
+          id: list.id,
           listName: list.CategoryName,
           listCreatedDate: list.CreatedDate ? formatDateDMY(list.CreatedDate) : "No date available",
           totalCO2: listTotalCO2,
