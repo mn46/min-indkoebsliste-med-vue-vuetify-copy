@@ -3,7 +3,7 @@
     <v-row align="center" justify="center">
       <v-col cols="auto">
         <v-btn
-          icon="mdi-plus"
+          :icon="mdiPlus"
           size="large"
           @click="handleClickBtn"
           class="text-center bg-primary rounded-b-circle"
@@ -14,7 +14,14 @@
 </template>
 
 <script>
+import { mdiPlus } from "@mdi/js";
+
 export default {
+  data() {
+    return {
+      mdiPlus,
+    };
+  },
   methods: {
     handleClickBtn() {
       this.$emit("toggle-open");

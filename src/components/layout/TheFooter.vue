@@ -12,10 +12,11 @@
   </v-footer>
 </template>
 <script>
+import { mdiFacebook, mdiTwitter, mdiLinkedin, mdiInstagram } from "@mdi/js";
 export default {
   data() {
     return {
-      icons: ["mdi-facebook", "mdi-twitter", "mdi-linkedin", "mdi-instagram"],
+      icons: [mdiFacebook, mdiTwitter, mdiLinkedin, mdiInstagram],
     };
   },
   methods: {},

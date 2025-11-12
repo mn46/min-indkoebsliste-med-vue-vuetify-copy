@@ -4,13 +4,16 @@ import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 import colors from "vuetify/util/colors";
-
+import { mdi } from "vuetify/iconsets/mdi-svg";
 const vuetify = createVuetify({
   components,
   directives,
   // Add your configuration here, e.g., themes, icons, etc.
   icons: {
     defaultSet: "mdi",
+    sets: {
+      mdi,
+    },
   },
   theme: {
     themes: {

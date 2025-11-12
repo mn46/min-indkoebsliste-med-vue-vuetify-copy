@@ -8,7 +8,7 @@
         <div class="d-flex align-center">
           <v-icon
             :color="getCo2LevelColor(listData.totalCO2)"
-            icon="mdi-circle-medium"
+            :icon="mdiCircleMedium"
             size="16"
             class="mr-1"
           ></v-icon>
@@ -19,30 +19,32 @@
           >
         </div>
         <span class="text-caption">CO<sub>2</sub>: {{ listData.totalCO2.toFixed(2) }} kg</span>
+        <update-delete />
       </div>
     </template>
-    <div>
-      <v-btn variant="tonal" class="text-center bg-secondary">Update </v-btn>
-      <v-btn variant="tonal" class="text-center bg-primary" @click="openDialogComponent"
-        >Delete
-      </v-btn>
-    </div>
   </v-list-item>
 </template>
 
 <script>
 import getCo2LevelColor from "@/utility/getCo2LevelColor";
 import getCo2LevelText from "@/utility/getCo2LevelText";
+import UpdateDelete from "./UI/UpdateDelete.vue";
+import { mdiCircleMedium } from "@mdi/js";
 export default {
   props: ["listData"],
   data() {
-    return {};
+    return {
+      mdiCircleMedium,
+    };
   },
   setup() {
     return {
       getCo2LevelColor,
       getCo2LevelText,
     };
+  },
+  components: {
+    UpdateDelete,
   },
 };
 </script>
