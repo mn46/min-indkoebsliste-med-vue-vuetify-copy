@@ -9,15 +9,12 @@
         variant="text"
       ></v-btn>
     </div>
-
-    <v-divider class="my-2" thickness="2" width="50"></v-divider>
   </v-footer>
 </template>
 <script>
 export default {
   data() {
     return {
-      // Define the array of icon names here
       icons: ["mdi-facebook", "mdi-twitter", "mdi-linkedin", "mdi-instagram"],
     };
   },

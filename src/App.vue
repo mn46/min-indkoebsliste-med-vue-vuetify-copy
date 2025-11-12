@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <the-header></the-header>
-    <section>
+    <main>
       <ShoppingList />
       <PlusButton @toggle-open="toggleIsAddNewListOpened" />
-    </section>
+    </main>
     <add-new-list v-if="isAddNewListOpened" @toggle-open="toggleIsAddNewListOpened" />
 
     <the-footer></the-footer>
