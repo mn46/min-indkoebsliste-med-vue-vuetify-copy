@@ -8,7 +8,8 @@
 
     <v-list v-if="recent30DaysList.length > 0" class="pb-0">
       <div v-for="(list, index) in recent30DaysList" :key="`recent-${index}`">
-        <v-list-item class="rounded elevation-1" @click="handleClick">
+        <v-list-item class="rounded elevation-1" :to="{ name: 'ListDetails', params: { id: list.id } }"
+  link>
           <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
           <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
 
@@ -42,7 +43,8 @@
 
     <v-list v-if="previousMonthList.length > 0" class="pb-0">
       <div v-for="(list, index) in previousMonthList" :key="`prev-month-${index}`">
-        <v-list-item class="rounded elevation-1" @click="handleClick">
+        <v-list-item class="rounded elevation-1" :to="{ name: 'ListDetails', params: { id: list.id } }"
+  link>
           <v-list-item-title class="font-weight-bold">{{ list.listName }}</v-list-item-title>
           <v-list-item-subtitle>{{ list.listCreatedDate }}</v-list-item-subtitle>
 
@@ -204,6 +206,7 @@ export default {
       if (productsRefs.length === 0) {
         this.shoppingList = receivedShoppingListFromDatabase.map((list) => {
           return {
+            id: list.id,
             listName: list.CategoryName,
             listCreatedDate: list.CreatedDate
               ? formatDateDMY(list.CreatedDate)
@@ -230,6 +233,7 @@ export default {
         }, 0);
         // AI end
         return {
+          id: list.id, 
           listName: list.CategoryName,
           listCreatedDate: list.CreatedDate ? formatDateDMY(list.CreatedDate) : "No date available",
           totalCO2: listTotalCO2,

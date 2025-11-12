@@ -30,7 +30,7 @@
     </template>
 
 <script>
-import productService from "@/services/productService";
+// import productService from "@/services/productService";
 
 export default {}
 </script>
