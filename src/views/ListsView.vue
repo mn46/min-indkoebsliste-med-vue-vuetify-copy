@@ -35,22 +35,64 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { db } from '@/utility/firebaseConfig'
+import { collection, getDocs } from 'firebase/firestore'
 
 const router = useRouter()
+const lists = ref([])
 
-const lists = ref([
-  { id: 1, name: 'Aftensmad', date: '2025-11-05', co2Level: 'Høj' },
-  { id: 2, name: 'Rema 100', date: '2025-11-04', co2Level: 'Medium' },
-  { id: 3, name: 'Fødselsdagsfest', date: '2025-10-30', co2Level: 'Lav' },
-])
+onMounted(async () => {
+  try {
+    const snapshot = await getDocs(collection(db, 'indkoebsliste'))
+    const data = snapshot.docs.map((doc) => {
+      const d = doc.data()
+
+      const totalCO2 = Array.isArray(d.Products)
+        ? d.Products.reduce((sum, product) => {
+            if (Array.isArray(product.alternatives)) {
+              return (
+                sum +
+                product.alternatives.reduce(
+                  (altSum, alt) =>
+                    altSum + (Number(alt.alternative_co2_per_kg) || 0),
+                  0
+                )
+              )
+            }
+            return sum
+          }, 0)
+        : 0
+
+      const co2Level = totalCO2 > 8 ? 'Høj' : totalCO2 > 3 ? 'Medium' : 'Lav'
+      const date = d.CreatedDate?.toDate ? d.CreatedDate.toDate() : new Date()
+
+      return {
+        id: doc.id,
+        name: d.CategoryName || 'indkøbsliste',
+        date,
+        totalCO2,
+        co2Level,
+      }
+    })
+
+    console.log('Retrieved Firestore data:', data)
+    lists.value = data
+  } catch (err) {
+    console.error(' Firestore fetch error:', err)
+  } 
+
+
+
+})
 
 const sortedLists = computed(() =>
-  [...lists.value].sort((a, b) => new Date(b.date) - new Date(a.date))
+  [...lists.value].sort((a, b) => b.date - a.date)
 )
 
-const formatDate = (date) => new Date(date).toLocaleDateString('da-DK')
+const formatDate = (date) =>
+  date instanceof Date ? date.toLocaleDateString('da-DK') : 'Ugyldig dato'
 
 const getLevelColor = (level) => {
   if (level === 'Høj') return 'red'

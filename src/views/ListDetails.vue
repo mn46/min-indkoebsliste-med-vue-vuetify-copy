@@ -9,9 +9,9 @@
       </div>
 
       <div v-if="list">
-        <div class="d-flex align-center mb-2">
-          <p class="text-subtitle-2 font-weight-medium mb-0 ml-4">
-            CO₂e: {{ list.totalCO2 }} kg
+        <div class="d-flex align-center mb-2 ml-2">
+          <p class="text-subtitle-2 font-weight-medium mb-0">
+            CO₂e: {{ list.totalCO2.toFixed(1) }} kg
           </p>
           <div :class="['co2-dot', getLevelColor(list.co2Level), 'ml-2', 'mr-1']"></div>
           <span class="text-body-2 font-weight-medium">{{ list.co2Level }}</span>
@@ -19,7 +19,7 @@
 
         <div class="divider mb-4"></div>
 
-        <v-list density="compact">
+        <v-list density="compact" lines="false">
           <v-list-item
             v-for="(item, i) in list.items"
             :key="i"
@@ -37,7 +37,7 @@
                     {{ item.name }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ item.amount }}
+                    {{ item.amount || '' }}
                   </v-list-item-subtitle>
                 </div>
               </div>
@@ -76,40 +76,75 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { db } from '@/utility/firebaseConfig'
+import { doc, getDoc } from 'firebase/firestore'
 
 const route = useRoute()
 const list = ref(null)
 
-onMounted(() => {
-  const mockLists = [
-    {
-      id: 1,
-      name: 'Aftensmad',
-      totalCO2: 6.4,
-      co2Level: 'Høj',
-      items: [
-        { name: 'Hakket oksekød', amount: '200g', co2: 10, checked: false },
-        { name: 'Æg', amount: '10 stk', co2: 8, checked: false },
-        { name: 'Smør', amount: '200g', co2: 10, checked: false },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Rema 100',
-      totalCO2: 3.2,
-      co2Level: 'Medium',
-      items: [
-        { name: 'Tomater', amount: '1kg', co2: 1.2, checked: false },
-        { name: 'Ris', amount: '500g', co2: 2, checked: false },
-      ],
-    },
-  ]
+onMounted(async () => {
+  const id = String(route.params.id)
+  const listSnap = await getDoc(doc(db, 'indkoebsliste', id))
+  if (!listSnap.exists()) return
 
-  const id = parseInt(route.params.id)
-  list.value = mockLists.find(l => l.id === id)
+  const data = listSnap.data()
+  const productRefs = Array.isArray(data.Products) ? data.Products : []
+  if (productRefs.length === 0) {
+    console.warn(`List ${id} has no product references`)
+  }
+
+  const productDocs = await Promise.all(
+    productRefs.map(async (prodId) => {
+      const prodSnap = await getDoc(doc(db, 'Products', prodId))
+      if (!prodSnap.exists()) return null
+
+      if (!prodSnap.exists()) {
+      return {
+        id: prodId,
+        name: 'Produkt fjernet', 
+        co2: 0,
+        amount: '',
+        checked: false,
+        alternatives: [],
+      }
+    }
+      const p = prodSnap.data()
+      return {
+        id: prodId,
+        name: p.prodName || 'Ukendt produkt',
+        co2: Number(p.co2_per_kg) || 0,
+        amount: p.amount || '',
+        checked: false,
+        alternatives: Array.isArray(p.alternatives)
+          ? p.alternatives.map((alt) => ({
+              name: alt.alternative_prod_name || 'Ukendt alternativ',
+              co2: Number(alt.alternative_co2_per_kg) || 0,
+            }))
+          : [],
+      }
+    })
+  )
+
+  const items = productDocs.filter(Boolean)
+  const total = items.reduce((sum, it) => sum + it.co2, 0)
+  const level = total > 8 ? 'Høj' : total > 3 ? 'Medium' : 'Lav'
+
+  list.value = {
+    id: listSnap.id,
+    name: data.CategoryName || data.listName || 'indkøbsliste',
+    createdAt: data.CreatedDate?.toDate
+      ? data.CreatedDate.toDate().toLocaleDateString('da-DK')
+      : 'Ukendt dato',
+    items,
+    totalCO2: total,
+    co2Level: level,
+  }
+
+  console.log(' Denormalized list:', list.value)
 })
 
 const toggleChecked = (index) => {
+  if (!list.value) return
   list.value.items[index].checked = !list.value.items[index].checked
 }
 
@@ -119,6 +154,7 @@ const getLevelColor = (level) => {
   return 'green-dot'
 }
 </script>
+
 
 <style scoped>
 .mobile-container {
@@ -131,15 +167,12 @@ const getLevelColor = (level) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
 
 .divider {
   height: 1px;
   background-color: #e5e5e5;
-}
-
-.border-b {
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .round-checkbox {
@@ -153,42 +186,20 @@ const getLevelColor = (level) => {
   justify-content: center;
   transition: all 0.2s ease;
 }
-
 .round-checkbox.checked {
   background-color: #4caf50;
   border-color: #4caf50;
 }
 
-.item-text {
-  transition: color 0.2s ease;
-}
+.item-text { transition: color 0.2s ease; }
+.checked-text { text-decoration: line-through; color: #9e9e9e; }
 
+.co2-dot { width: 12px; height: 12px; border-radius: 50%; }
+.red-dot { background-color: red; }
+.yellow-dot { background-color: orange; }
+.green-dot { background-color: green; }
 
+.bottom-bar { border-top: 1px solid #ddd; }
 
-.checked-text {
-  text-decoration: line-through;
-  color: #9e9e9e;
-}
-
-.co2-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.red-dot {
-  background-color: red;
-}
-
-.yellow-dot {
-  background-color: orange;
-}
-
-.green-dot {
-  background-color: green;
-}
-
-.bottom-bar {
-  border-top: 1px solid #ddd;
-}
+.v-list, .v-list-item { padding-left: 0 !important; padding-right: 0 !important; }
 </style>
