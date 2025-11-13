@@ -1,9 +1,10 @@
 <template>
-<!-- // template fra vuetify -->
+<!-- // template er taget fra vuetify -->
   <div>
     <h3 v-if="alternatives.length">Vælg grønt alternativ</h3>
-    <v-select
-    bg-color="dark-green"
+    <v-select 
+      v-model="selectedAlternative"
+      @update:modelValue="handleSelect"
       clearable
       chips
       label="Vælg alternativ"
@@ -11,55 +12,70 @@
       item-title="prodName"
       item-value="prodName"
       v-if="alternatives.length"
-variant="solo-filled"
-    >
-    
-    </v-select>
+      variant="solo-filled"
+      bg-color="green"
+    ></v-select>
   </div>
 </template>
-<script setup>
+<!-- // template er taget  fra vuetify -->
+
+
+<script>
 import { ref, onMounted } from "vue";
 import { db } from "@/utility/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 
 
-// modtag produktets id som prop
-const props = defineProps({
-  productId: {
-    type: String,
-    required: true,
-  },
-});
-
-const alternatives = ref([]);
-
-onMounted(async () => {
-  try {
-    const prodRef = doc(db, "Products", props.productId);
-    const prodSnap = await getDoc(prodRef);
-
-    if (!prodSnap.exists()) return;
-
-    const data = prodSnap.data();
-    if (Array.isArray(data.prodAlternatives)) {
-      alternatives.value = data.prodAlternatives;
-    
-    } else {
-      alternatives.value = [];
+export default {
+  name: "GreenDropDown",
+  props:{
+    productId:{
+      type: String,
+      required: true
     }
-  } catch (err) {
-    console.error("Fejl ved hentning af alternativer:", err);
-  }
-  
-});
+  },
+  data(){
+    return{
+      alternatives:[],
+      selectedAlternative:null
+    };
+  },
+    //ai
+    methods: {
+    async fetchAlternatives() {
+        try {
+          // Reference til produktet i "Products" samlingen
+          const prodRef = doc(db, "Products", this.productId);
+          const prodSnap = await getDoc(prodRef);
 
-</script>
-<style scoped>
-h3{
-    font-size: small;
-    font-weight: 100;
-    color: green;
-  
-}
+          // Hvis dokumentet ikke findes, stop
+          if (!prodSnap.exists()) return;
 
-</style>
+          const data = prodSnap.data();
+
+          // Tjek om der er alternativer og gem dem, ellers tom array
+          if (Array.isArray(data.prodAlternatives)) {
+            this.alternatives = data.prodAlternatives;
+          } else {
+            this.alternatives = [];
+          }
+
+        } catch (err) {
+          console.log("Fejl ved hentning af alternativer:", err);
+        }
+      },
+      handleSelect(value){  const alternative = this.alternatives.find(a => a.prodName === value);
+        if (alternative) {
+          this.$emit("alternativeSelected", {
+            originalId: this.productId, 
+            alternative: alternative
+          }); }
+        },
+        
+          // ai 
+    
+  },
+  mounted(){
+            this.fetchAlternatives();
+          }
+}</script>

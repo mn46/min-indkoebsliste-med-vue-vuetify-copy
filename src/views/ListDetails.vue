@@ -56,7 +56,7 @@
                 {{ item.co2 }} kg CO₂
               </span>
             </div>
-<green-drop-down :product-id="item.id" />
+<green-drop-down :product-id="item.id" @alternativeSelected="replaceProduct(i,$event)"/>
           </v-list-item>
         </v-list>
       </div>
@@ -88,6 +88,20 @@ import { db } from '@/utility/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
 import GreenDropDown from "@/components/GreenDropDown.vue";
 import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
+
+function replaceProduct(index, { originalId, alternative }) {
+  const item = list.value.items[index];
+  if (!item) return;
+
+  // Du kan vælge hvordan du vil "udskifte" produktet.
+  // Fx. opdatér felterne direkte:
+  item.name = alternative.prodName || "Ukendt alternativ";
+  item.co2 = Number(alternative.co2_per_kg) || 0;
+  item.id = `${originalId}-alt`; // valgfrit — markér det som alternativ
+  item.checked = false;
+  item.amount = item.amount; // behold mængde
+}
+
 
 const route = useRoute()
 const list = ref(null)
