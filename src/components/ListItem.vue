@@ -1,5 +1,8 @@
 <template>
-  <v-list-item class="rounded elevation-1">
+  <v-list-item
+    class="rounded elevation-1"
+    :to="{ name: 'ListDetails', params: { id: listData.id } }"
+  >
     <v-list-item-title class="font-weight-bold">{{ listData.listName }}</v-list-item-title>
     <v-list-item-subtitle>{{ listData.listCreatedDate }}</v-list-item-subtitle>
 
