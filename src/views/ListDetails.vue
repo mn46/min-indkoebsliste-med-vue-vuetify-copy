@@ -79,6 +79,7 @@
       </v-btn>
     </v-bottom-navigation>
   </v-container>
+  <confirm-box></confirm-box>
 </template>
 
 <script setup>
@@ -87,6 +88,8 @@ import { useRoute } from 'vue-router'
 import { db } from '@/utility/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
 import GreenDropDown from "@/components/GreenDropDown.vue";
+import confirmBox from "@/components/UI/confirmBox.vue"
+
 import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
 
 function replaceProduct(index, { originalId, alternative }) {
