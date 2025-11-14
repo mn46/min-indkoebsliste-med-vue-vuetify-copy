@@ -1,39 +1,55 @@
 <template>
-    <div class="test">
-        <p>du har sparet xxx</p>
-    </div>
+<div v-show="show" class="test animate__animated animate__fadeInUpBig">
+   🎉 Du har sparet {{ savedCo2.toFixed(2) }} kg CO₂ 
+</div>
+
 </template>
+
 <script>
+import 'animate.css';
 
-export default {data()
-{
-return {
-        name: "confirmBox"
-
-}
-}
-methods:{
-    
-}
+export default {
+  props: {
+    originalCo2: { type: Number, required: true },
+    alternativeCo2: { type: Number, required: true }
+  },
+  data() {
+    return {
+      savedCo2: 0,
+      show: false
+    }
+  },
+  watch: {
+    originalCo2: "calculate",
+    alternativeCo2: "calculate"
+  },
+  methods: {
+    calculate() {
+      this.savedCo2 = this.originalCo2 - this.alternativeCo2
+      this.show = true
+      setTimeout(() => { this.show = false },5000)
+    }
+  }
 }
 </script>
 <style scoped>
+
 .test{
     z-index: 99;
-    display: flex;
-    justify-content: center;
-    align-content: center;
+    max-width: 425px;    height: 40px;
     text-align: center;
+    background: #cedfd3;
+    border: 2px solid rgba(9, 97, 35, 1);
+    border-radius: 5px;
+    color: rgba(9, 97, 35, 1);
+    position: absolute;
+    bottom:10%;
     justify-self: center;
     align-self: center;
-    height: 5vh;
-    border-radius: 5px;
-    width: 200px;
-    position: relative;
-    bottom:50%;
-    background: #0961233b;
-border: 2px, solid;
-color: green;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
 
 }
 </style>

@@ -14,6 +14,8 @@
       v-if="alternatives.length"
       variant="solo-filled"
       bg-color="green"
+      append-icon="mdi-menu-down" 
+      color="black"
     ></v-select>
   </div>
 </template>
@@ -39,6 +41,11 @@ export default {
       alternatives:[],
       selectedAlternative:null
     };
+  },
+  computed: {
+      selectClass(){
+        return 'green-select'
+      }
   },
     //ai
     methods: {
@@ -79,3 +86,10 @@ export default {
             this.fetchAlternatives();
           }
 }</script>
+
+
+<style scoped>
+
+  
+
+</style>

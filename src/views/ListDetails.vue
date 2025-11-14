@@ -56,7 +56,14 @@
                 {{ item.co2 }} kg CO₂
               </span>
             </div>
-<green-drop-down :product-id="item.id" @alternativeSelected="replaceProduct(i,$event)"/>
+<!--SOFIE-->
+<green-drop-down
+  :product-id="item.id"
+  :original-co2="item.co2"
+  @alternativeSelected="handleAlternativeSelected(i, item.co2, $event)"
+/>
+<!-- Sofie END -->
+
           </v-list-item>
         </v-list>
       </div>
@@ -65,8 +72,17 @@
         <v-alert type="warning" variant="tonal">
           Ingen data fundet for denne liste.
         </v-alert>
+      </div> 
       </div>
-    </div>
+
+      
+          <!--SOFIE-->
+<confirm-box
+  v-if="showConfirm"
+  :original-co2="confirmOriginalCo2"
+  :alternative-co2="confirmAlternativeCo2"
+/>
+ <!-- SOFIE END -->
 
     <v-bottom-navigation height="56" class="bottom-bar">
       <v-btn
@@ -79,7 +95,7 @@
       </v-btn>
     </v-bottom-navigation>
   </v-container>
-  <confirm-box></confirm-box>
+  <confirm-box/>
 </template>
 
 <script setup>
@@ -87,23 +103,42 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { db } from '@/utility/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
+import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
+
+// SOFIE START
 import GreenDropDown from "@/components/GreenDropDown.vue";
 import confirmBox from "@/components/UI/confirmBox.vue"
 
-import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
 
-function replaceProduct(index, { originalId, alternative }) {
-  const item = list.value.items[index];
-  if (!item) return;
+// ai*
+const showConfirm = ref(false)
+const confirmOriginalCo2 = ref(0)
+const confirmAlternativeCo2 = ref(0)
 
-  // Du kan vælge hvordan du vil "udskifte" produktet.
-  // Fx. opdatér felterne direkte:
-  item.name = alternative.prodName || "Ukendt alternativ";
-  item.co2 = Number(alternative.co2_per_kg) || 0;
-  item.id = `${originalId}-alt`; // valgfrit — markér det som alternativ
-  item.checked = false;
-  item.amount = item.amount; // behold mængde
+function handleAlternativeSelected(index, originalCo2, { originalId, alternative }) {
+  // Sender data til confirmBox.vue
+  confirmOriginalCo2.value = originalCo2
+  confirmAlternativeCo2.value = Number(alternative.co2_per_kg)
+  showConfirm.value = true
+
+  // Opdater listen lokalt
+  const item = list.value.items[index]
+  item.name = alternative.prodName
+  item.co2 = Number(alternative.co2_per_kg)
+  item.id = originalId + "-alt"
+  item.checked = false
 }
+// ai*
+
+function replaceProduct(index, { originalId, alternative }) { //replaceProduct funktion har to arugmenter (index+position af produktet list.value.items, den henter orginalid'et+ alternatives)
+  const item = list.value.items[index]; //Finder specifikt produkt med alle produkter i listen. list.value.items er arrayet med alle produkter i listen og item er selve produktet som skal opdateres, hvis produkt ikke findes stopper funktionen. 
+  if (!item) return;
+  item.name = alternative.prodName || "Ukendt alternativ"; //Jeg ændrer produktetsnavn med alternativs navn. Hbis der ikke er noget alternative.prodName. så er tekstenm "Ukendt alternativt"
+  item.co2 = Number(alternative.co2_per_kg) || 0; //ændre Co2-værdien for produktets til alternativets Co2 per kg
+  item.id = `${originalId}`; //opdaterer produktets ID 
+  item.checked = false; //Fjerner "chekced"-statysu
+  item.amount = item.amount;} 
+// SOFIE END
 
 
 const route = useRoute()
