@@ -2,10 +2,8 @@
   <p v-if="loading">
     <the-loader />
   </p>
-
   <v-card class="mx-auto">
     <v-card-title class="text-center bg-primary rounded-b-circle">Seneste 30 dage</v-card-title>
-
     <v-list v-if="recent30DaysList.length > 0" class="pb-0">
       <div v-for="(list, index) in recent30DaysList" :key="`recent-${index}`">
         <list-item :listData="list" />
