@@ -1,16 +1,12 @@
 <template>
   <v-form id="list-form" @submit.prevent="handleSaveList">
-    <v-row align="center" justify="center" class="mb-2">
-      <v-col cols="2" class="pa-0">
-        <v-btn @click="handleClickBackBtn" variant="flat" class="pa-0 ma-0 fill-height fill-width">
-          <v-icon :icon="mdiArrowLeft" size="x-large"></v-icon
-        ></v-btn>
-      </v-col>
+    <div class="d-flex align-center mb-2">
+      <v-btn @click="handleClickBackBtn" variant="flat" class="pa-0 ma-0 fill-height fill-width">
+        <v-icon :icon="mdiArrowLeft" size="x-large"></v-icon
+      ></v-btn>
 
-      <v-col cols="10">
-        <v-text-field placeholder="Skriv navn" v-model="listName" :rules="validationRules" />
-      </v-col>
-    </v-row>
+      <v-text-field placeholder="Skriv navn" v-model="listName" :rules="validationRules" />
+    </div>
 
     <v-text-field
       id="name-input"
