@@ -21,13 +21,23 @@
 
     <v-list id="selected-products-list">
       <v-list-item v-for="product in shoppingListProducts" v-bind:key="product">
-        <v-list-item-title>{{
-          productsList.find((prod) => prod.value === product).title
-        }}</v-list-item-title>
-        <v-list-item-subtitle
-          >{{ productsList.find((prod) => prod.value === product).co2_per_kg }} kg
-          CO₂</v-list-item-subtitle
-        >
+        <div class="d-flex align-center justify-space-between w-100 mb-2">
+          <div>
+            <v-list-item-title>{{
+              productsList.find((prod) => prod.value === product).title
+            }}</v-list-item-title>
+            <v-list-item-subtitle
+              >{{ productsList.find((prod) => prod.value === product).co2_per_kg }} kg
+              CO₂</v-list-item-subtitle
+            >
+          </div>
+          <v-btn
+            :icon="mdiDelete"
+            class="bg-primary"
+            size="small"
+            @click="handleClickDelete(product)"
+          ></v-btn>
+        </div>
       </v-list-item>
     </v-list>
 
@@ -52,7 +62,7 @@
 
 <script>
 import productService from "../services/productService";
-import { mdiArrowLeft } from "@mdi/js";
+import { mdiArrowLeft, mdiDelete } from "@mdi/js";
 export default {
   data() {
     return {
@@ -62,12 +72,16 @@ export default {
       listName: "",
       validationRules: [(value) => !!value || "Liste navn er pakrævet."],
       mdiArrowLeft,
+      mdiDelete,
     };
   },
   methods: {
     handleClickBackBtn() {
       if (this.shoppingListProducts.length === 0) this.$router.push({ path: "/" });
       else this.handleSaveList();
+    },
+    handleClickDelete(product) {
+      this.shoppingListProducts = this.shoppingListProducts.filter((prod) => prod !== product);
     },
     setShoppingListData(data) {
       this.shoppingListProducts.push(data.value);
