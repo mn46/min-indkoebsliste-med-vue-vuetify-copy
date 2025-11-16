@@ -4,8 +4,6 @@
       <div class="d-flex align-center mb-2">
         <v-btn variant="plain" size="small" @click="$router.back()">
           <v-icon :icon="mdiArrowLeft" size="25" />
-
-
         </v-btn>
         <h2 class="text-h6 font-weight-bold mb-0 ml-2">{{ list?.name }}</h2>
       </div>
@@ -31,20 +29,15 @@
             <div class="d-flex align-center justify-space-between w-100">
               <div class="d-flex align-center">
                 <div class="round-checkbox" :class="{ checked: item.checked }">
-<v-icon
-  v-if="item.checked"
-  size="14"
-  color="white"
-  :icon="mdiCheck"
-/>
-              </div>
+                  <v-icon v-if="item.checked" size="14" color="white" :icon="mdiCheck" />
+                </div>
 
                 <div :class="['item-text', { 'checked-text': item.checked }]">
                   <v-list-item-title class="text-body-1 font-weight-bold">
                     {{ item.name }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ item.amount || '' }}
+                    {{ item.amount || "" }}
                   </v-list-item-subtitle>
                 </div>
               </div>
@@ -56,167 +49,154 @@
                 {{ item.co2 }} kg CO₂
               </span>
             </div>
-<!--SOFIE-->
-<green-drop-down
-  :product-id="item.id"
-  :original-co2="item.co2"
-  @alternativeSelected="handleAlternativeSelected(i, item.co2, $event)"
-/>
-<!-- Sofie END -->
-
+            <!--SOFIE-->
+            <green-drop-down
+              :product-id="item.id"
+              :original-co2="item.co2"
+              @alternativeSelected="handleAlternativeSelected(i, item.co2, $event)"
+            />
+            <!-- Sofie END -->
           </v-list-item>
         </v-list>
       </div>
 
       <div v-else>
-        <v-alert type="warning" variant="tonal">
-          Ingen data fundet for denne liste.
-        </v-alert>
-      </div> 
+        <v-alert type="warning" variant="tonal"> Ingen data fundet for denne liste. </v-alert>
       </div>
+    </div>
 
-      
-          <!--SOFIE-->
-<confirm-box
-  v-if="showConfirm"
-  :original-co2="confirmOriginalCo2"
-  :alternative-co2="confirmAlternativeCo2"
-/>
- <!-- SOFIE END -->
+    <!--SOFIE-->
+    <confirm-box
+      v-if="showConfirm"
+      :original-co2="confirmOriginalCo2"
+      :alternative-co2="confirmAlternativeCo2"
+    />
+    <!-- SOFIE END -->
 
-    <v-bottom-navigation height="56" class="bottom-bar">
-      <v-btn
-        variant="text"
-        class="text-body-2 font-weight-medium"
-        @click="$router.push('/lists')"
-      >
-<v-icon start :icon="mdiFormatListBulleted" />
-        dine indkøbslister
-      </v-btn>
-    </v-bottom-navigation>
+    <bottom-navigation />
   </v-container>
-  <confirm-box/>
+  <confirm-box />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { db } from '@/utility/firebaseConfig'
-import { doc, getDoc } from 'firebase/firestore'
-import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { db } from "@/utility/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { mdiArrowLeft, mdiCheck } from "@mdi/js";
+import BottomNavigation from "@/components/BottomNavigation.vue";
 
 // SOFIE START
 import GreenDropDown from "@/components/GreenDropDown.vue";
-import confirmBox from "@/components/UI/confirmBox.vue"
-
+import confirmBox from "@/components/UI/confirmBox.vue";
 
 // ai*
-const showConfirm = ref(false)
-const confirmOriginalCo2 = ref(0)
-const confirmAlternativeCo2 = ref(0)
+const showConfirm = ref(false);
+const confirmOriginalCo2 = ref(0);
+const confirmAlternativeCo2 = ref(0);
 
 function handleAlternativeSelected(index, originalCo2, { originalId, alternative }) {
   // Sender data til confirmBox.vue
-  confirmOriginalCo2.value = originalCo2
-  confirmAlternativeCo2.value = Number(alternative.co2_per_kg)
-  showConfirm.value = true
+  confirmOriginalCo2.value = originalCo2;
+  confirmAlternativeCo2.value = Number(alternative.co2_per_kg);
+  showConfirm.value = true;
 
   // Opdater listen lokalt
-  const item = list.value.items[index]
-  item.name = alternative.prodName
-  item.co2 = Number(alternative.co2_per_kg)
-  item.id = originalId + "-alt"
-  item.checked = false
+  const item = list.value.items[index];
+  item.name = alternative.prodName;
+  item.co2 = Number(alternative.co2_per_kg);
+  item.id = originalId + "-alt";
+  item.checked = false;
 }
 // ai*
 
-function replaceProduct(index, { originalId, alternative }) { //replaceProduct funktion har to arugmenter (index+position af produktet list.value.items, den henter orginalid'et+ alternatives)
-  const item = list.value.items[index]; //Finder specifikt produkt med alle produkter i listen. list.value.items er arrayet med alle produkter i listen og item er selve produktet som skal opdateres, hvis produkt ikke findes stopper funktionen. 
+function replaceProduct(index, { originalId, alternative }) {
+  //replaceProduct funktion har to arugmenter (index+position af produktet list.value.items, den henter orginalid'et+ alternatives)
+  const item = list.value.items[index]; //Finder specifikt produkt med alle produkter i listen. list.value.items er arrayet med alle produkter i listen og item er selve produktet som skal opdateres, hvis produkt ikke findes stopper funktionen.
   if (!item) return;
   item.name = alternative.prodName || "Ukendt alternativ"; //Jeg ændrer produktetsnavn med alternativs navn. Hbis der ikke er noget alternative.prodName. så er tekstenm "Ukendt alternativt"
   item.co2 = Number(alternative.co2_per_kg) || 0; //ændre Co2-værdien for produktets til alternativets Co2 per kg
-  item.id = `${originalId}`; //opdaterer produktets ID 
+  item.id = `${originalId}`; //opdaterer produktets ID
   item.checked = false; //Fjerner "chekced"-statysu
-  item.amount = item.amount;} 
+  item.amount = item.amount;
+}
 // SOFIE END
 
-
-const route = useRoute()
-const list = ref(null)
+const route = useRoute();
+const list = ref(null);
 
 onMounted(async () => {
-  const id = String(route.params.id)
-  const listSnap = await getDoc(doc(db, 'indkoebsliste', id))
-  if (!listSnap.exists()) return
+  const id = String(route.params.id);
+  const listSnap = await getDoc(doc(db, "indkoebsliste", id));
+  if (!listSnap.exists()) return;
 
-  const data = listSnap.data()
-  const productRefs = Array.isArray(data.Products) ? data.Products : []
+  const data = listSnap.data();
+  const productRefs = Array.isArray(data.Products) ? data.Products : [];
   if (productRefs.length === 0) {
-    console.warn(`List ${id} has no product references`)
+    console.warn(`List ${id} has no product references`);
   }
 
   const productDocs = await Promise.all(
     productRefs.map(async (prodId) => {
-      const prodSnap = await getDoc(doc(db, 'Products', prodId))
-      if (!prodSnap.exists()) return null
+      const prodSnap = await getDoc(doc(db, "Products", prodId));
+      if (!prodSnap.exists()) return null;
 
       if (!prodSnap.exists()) {
-      return {
-        id: prodId,
-        name: 'Produkt fjernet', 
-        co2: 0,
-        amount: '',
-        checked: false,
-        alternatives: [],
+        return {
+          id: prodId,
+          name: "Produkt fjernet",
+          co2: 0,
+          amount: "",
+          checked: false,
+          alternatives: [],
+        };
       }
-    }
-      const p = prodSnap.data()
+      const p = prodSnap.data();
       return {
         id: prodId,
-        name: p.prodName || 'Ukendt produkt',
+        name: p.prodName || "Ukendt produkt",
         co2: Number(p.co2_per_kg) || 0,
-        amount: p.amount || '',
+        amount: p.amount || "",
         checked: false,
         alternatives: Array.isArray(p.alternatives)
           ? p.alternatives.map((alt) => ({
-              name: alt.alternative_prod_name || 'Ukendt alternativ',
+              name: alt.alternative_prod_name || "Ukendt alternativ",
               co2: Number(alt.alternative_co2_per_kg) || 0,
             }))
           : [],
-      }
+      };
     })
-  )
+  );
 
-  const items = productDocs.filter(Boolean)
-  const total = items.reduce((sum, it) => sum + it.co2, 0)
-  const level = total > 8 ? 'Høj' : total > 3 ? 'Medium' : 'Lav'
+  const items = productDocs.filter(Boolean);
+  const total = items.reduce((sum, it) => sum + it.co2, 0);
+  const level = total > 8 ? "Høj" : total > 3 ? "Medium" : "Lav";
 
   list.value = {
     id: listSnap.id,
-    name: data.CategoryName || data.listName || 'indkøbsliste',
+    name: data.CategoryName || data.listName || "indkøbsliste",
     createdAt: data.CreatedDate?.toDate
-      ? data.CreatedDate.toDate().toLocaleDateString('da-DK')
-      : 'Ukendt dato',
+      ? data.CreatedDate.toDate().toLocaleDateString("da-DK")
+      : "Ukendt dato",
     items,
     totalCO2: total,
     co2Level: level,
-  }
+  };
 
-  console.log(' Denormalized list:', list.value)
-})
+  console.log(" Denormalized list:", list.value);
+});
 
 const toggleChecked = (index) => {
-  if (!list.value) return
-  list.value.items[index].checked = !list.value.items[index].checked
-}
+  if (!list.value) return;
+  list.value.items[index].checked = !list.value.items[index].checked;
+};
 
 const getLevelColor = (level) => {
-  if (level === 'Høj') return 'red-dot'
-  if (level === 'Medium') return 'yellow-dot'
-  return 'green-dot'
-}
+  if (level === "Høj") return "red-dot";
+  if (level === "Medium") return "yellow-dot";
+  return "green-dot";
+};
 </script>
-
 
 <style scoped>
 .mobile-container {
@@ -253,15 +233,36 @@ const getLevelColor = (level) => {
   border-color: #4caf50;
 }
 
-.item-text { transition: color 0.2s ease; }
-.checked-text { text-decoration: line-through; color: #9e9e9e; }
+.item-text {
+  transition: color 0.2s ease;
+}
+.checked-text {
+  text-decoration: line-through;
+  color: #9e9e9e;
+}
 
-.co2-dot { width: 12px; height: 12px; border-radius: 50%; }
-.red-dot { background-color: red; }
-.yellow-dot { background-color: orange; }
-.green-dot { background-color: green; }
+.co2-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.red-dot {
+  background-color: red;
+}
+.yellow-dot {
+  background-color: orange;
+}
+.green-dot {
+  background-color: green;
+}
 
-.bottom-bar { border-top: 1px solid #ddd; }
+.bottom-bar {
+  border-top: 1px solid #ddd;
+}
 
-.v-list, .v-list-item { padding-left: 0 !important; padding-right: 0 !important; }
+.v-list,
+.v-list-item {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 </style>
