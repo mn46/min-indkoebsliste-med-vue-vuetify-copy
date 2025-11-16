@@ -95,14 +95,13 @@
       </v-btn>
     </v-bottom-navigation>
   </v-container>
-  <confirm-box/>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { db } from '@/utility/firebaseConfig'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc,updateDoc } from 'firebase/firestore'
 import { mdiArrowLeft, mdiCheck, mdiFormatListBulleted } from '@mdi/js'
 
 // SOFIE START
@@ -115,29 +114,37 @@ const showConfirm = ref(false)
 const confirmOriginalCo2 = ref(0)
 const confirmAlternativeCo2 = ref(0)
 
-function handleAlternativeSelected(index, originalCo2, { originalId, alternative }) {
-  // Sender data til confirmBox.vue
-  confirmOriginalCo2.value = originalCo2
-  confirmAlternativeCo2.value = Number(alternative.co2_per_kg)
-  showConfirm.value = true
+async function handleAlternativeSelected(index, originalCo2, { originalId, alternative }) {
+  // 1) Reaktiv erstatning af item
+  const updatedItem = {
+    ...list.value.items[index],
+    name: alternative.prodName,
+    co2: Number(alternative.co2_per_kg),
+    id: originalId + "-alt",
+    checked: false
+  }
 
-  // Opdater listen lokalt
-  const item = list.value.items[index]
-  item.name = alternative.prodName
-  item.co2 = Number(alternative.co2_per_kg)
-  item.id = originalId + "-alt"
-  item.checked = false
+  list.value.items.splice(index, 1, updatedItem)
+
+  // 2) Beregn total CO2 igen
+  list.value.totalCO2 = list.value.items.reduce((sum, it) => sum + it.co2, 0)
+
+  // 3) Opdater niveau
+  const total = list.value.totalCO2
+  list.value.co2Level = total > 8 ? 'Høj' : total > 3 ? 'Medium' : 'Lav'
+
+  // 4) Gem ændringer i Firestore
+  const ref = doc(db, "indkoebsliste", list.value.id)
+
+  await updateDoc(ref, {
+    items: list.value.items,
+    totalCO2: list.value.totalCO2,
+    co2Level: list.value.co2Level
+  })
 }
-// ai*
 
-function replaceProduct(index, { originalId, alternative }) { //replaceProduct funktion har to arugmenter (index+position af produktet list.value.items, den henter orginalid'et+ alternatives)
-  const item = list.value.items[index]; //Finder specifikt produkt med alle produkter i listen. list.value.items er arrayet med alle produkter i listen og item er selve produktet som skal opdateres, hvis produkt ikke findes stopper funktionen. 
-  if (!item) return;
-  item.name = alternative.prodName || "Ukendt alternativ"; //Jeg ændrer produktetsnavn med alternativs navn. Hbis der ikke er noget alternative.prodName. så er tekstenm "Ukendt alternativt"
-  item.co2 = Number(alternative.co2_per_kg) || 0; //ændre Co2-værdien for produktets til alternativets Co2 per kg
-  item.id = `${originalId}`; //opdaterer produktets ID 
-  item.checked = false; //Fjerner "chekced"-statysu
-  item.amount = item.amount;} 
+// aiEnd*
+
 // SOFIE END
 
 

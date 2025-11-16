@@ -23,13 +23,19 @@ export default {
     originalCo2: "calculate",
     alternativeCo2: "calculate"
   },
-  methods: {
-    calculate() {
-      this.savedCo2 = this.originalCo2 - this.alternativeCo2
-      this.show = true
-      setTimeout(() => { this.show = false },5000)
-    }
+ methods: {
+  calculate() {
+    const original = Number(this.originalCo2) || 0
+    const alternative = Number(this.alternativeCo2) || 0
+    this.savedCo2 = original - alternative
+    this.show = true
+    setTimeout(() => { this.show = false }, 5000)
   }
+},
+mounted() {
+  this.calculate()
+}
+
 }
 </script>
 <style scoped>

@@ -1,10 +1,12 @@
 <template>
 <!-- // template er taget fra vuetify -->
   <div>
-    <h3 v-if="alternatives.length">Vælg grønt alternativ</h3>
+    <h3 v-if="alternatives.length" >Vælg grønt alternativ</h3> 
+
     <v-select 
       v-model="selectedAlternative"
       @update:modelValue="handleSelect"
+      
       clearable
       chips
       label="Vælg alternativ"
@@ -23,9 +25,9 @@
 
 
 <script>
-import { ref, onMounted } from "vue";
 import { db } from "@/utility/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+
 
 
 export default {
