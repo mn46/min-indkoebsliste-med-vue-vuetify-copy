@@ -8,13 +8,6 @@
       <v-text-field placeholder="Skriv navn" v-model="listName" :rules="validationRules" />
     </div>
 
-    <v-text-field
-      id="name-input"
-      placeholder="Skriv navn"
-      v-model="listName"
-      :rules="validationRules"
-    />
-
     <v-list id="selected-products-list">
       <v-list-item v-for="product in shoppingListProducts" v-bind:key="product">
         <div class="d-flex align-center justify-space-between w-100 mb-2">
@@ -126,10 +119,6 @@ export default {
   top: 0;
   left: 0;
   padding: 3vh 5vw;
-}
-
-#name-input {
-  margin-bottom: 1vh;
 }
 
 #selected-products-list {
