@@ -42,9 +42,11 @@
     </v-list>
 
     <v-combobox
+      ref="combobox"
       :items="productsList"
       item-value="value"
       label="Vælg produkt"
+      v-on:update:model-value="handleClearInput"
       @update:model-value="setShoppingListData"
     >
       <template v-slot:item="{ props, item }">
@@ -77,6 +79,9 @@ export default {
     handleClickBackBtn() {
       if (this.shoppingListProducts.length === 0) this.$router.push({ path: "/" });
       else this.handleSaveList();
+    },
+    handleClearInput(item) {
+      if (this.productsList.includes(item)) this.$refs.combobox.search = "";
     },
     handleClickDelete(product) {
       this.shoppingListProducts = this.shoppingListProducts.filter((prod) => prod !== product);
