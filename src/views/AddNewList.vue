@@ -48,12 +48,18 @@
 
     <v-btn type="submit">Gem</v-btn>
   </v-form>
+
+  <bottom-navigation />
 </template>
 
 <script>
+import BottomNavigation from "@/components/BottomNavigation.vue";
 import productService from "../services/productService";
 import { mdiArrowLeft, mdiDelete } from "@mdi/js";
 export default {
+  components: {
+    BottomNavigation,
+  },
   data() {
     return {
       productsList: [],
