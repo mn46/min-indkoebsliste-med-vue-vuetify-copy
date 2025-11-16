@@ -45,7 +45,6 @@
       :items="productsList"
       item-value="value"
       label="Vælg produkt"
-      v-model="selectedItem"
       @update:model-value="setShoppingListData"
     >
       <template v-slot:item="{ props, item }">
@@ -68,7 +67,6 @@ export default {
     return {
       productsList: [],
       shoppingListProducts: [],
-      selectedItem: null,
       listName: "",
       validationRules: [(value) => !!value || "Liste navn er pakrævet."],
       mdiArrowLeft,
@@ -84,7 +82,7 @@ export default {
       this.shoppingListProducts = this.shoppingListProducts.filter((prod) => prod !== product);
     },
     setShoppingListData(data) {
-      this.shoppingListProducts.push(data.value);
+      if (this.productsList.includes(data)) this.shoppingListProducts.push(data.value);
     },
     async handleSaveList() {
       if (!this.listName || this.shoppingListProducts.length === 0) return;
