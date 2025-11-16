@@ -122,7 +122,7 @@ export default {
 }
 
 #selected-products-list {
-  max-height: 50vh;
+  max-height: 55vh;
   overflow: auto;
   margin-bottom: 3vh;
 }
