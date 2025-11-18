@@ -11,8 +11,10 @@
 import { mdiFormatListBulleted } from "@mdi/js";
 
 export default {
-  methods: {
-    mdiFormatListBulleted,
+  data() {
+    return {
+      mdiFormatListBulleted,
+    };
   },
 };
 </script>
